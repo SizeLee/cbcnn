@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import json, threading
 import myLoadData
-from MyCombCNNPack import accuracyEvaluate, combineFeature, combineNumCalculate, costFunc, convLayer, fullConnect, \
+import accuracyEvaluate, combineFeature, combineNumCalculate, costFunc, convLayer, fullConnect, \
     maxPoolingLayer, myException
 
 
@@ -89,7 +89,7 @@ class myCombineCNN:
             json.dump(model, fp)
             fp.close()
 
-        except FileNotFoundError:
+        except Exception:
             return False
 
         return True
@@ -100,7 +100,7 @@ class myCombineCNN:
             model = json.load(fp)
             fp.close()
 
-        except FileNotFoundError:
+        except Exception:
             return False
 
         self.combConvLayer1 = combineFeature.combineFeature(model['convLayer']['combConv']['all'],
@@ -139,7 +139,7 @@ class myCombineCNN:
         return True
 
 
-    def trainCNN(self, trainRound, trainRate, trainingContinueFlag, trainPicAccessLock):
+    def trainCNN(self, trainRound, trainRate):
         self.__trainingProgress = 0.
         self.combConvLayer1 = combineFeature.combineFeature(self.data.DataX.shape[1], self.combineNumConv1)
         combKindNumConv1 = combineNumCalculate.combineNumCal(self.data.DataX.shape[1], self.combineNumConv1)
@@ -230,9 +230,10 @@ class myCombineCNN:
         trainCostList.append(trainCost)
         trainTimeList = [0]
         ###################### start train in round
+
+
         for trainTime in range(trainRound - 1):
-            if not trainingContinueFlag[0]:
-                break
+
             # print('1')
             self.forwardPropagation()
             # print('mid')
@@ -254,23 +255,20 @@ class myCombineCNN:
             #     print(trainRate)
             #
             # lastTrainCost = trainCost
-
+            print trainCost
             trainCostList.append(trainCost)
             trainTimeList.append(trainTime + 1)
             self.__trainingProgress = (trainTime + 2) / float(trainRound)
             #     progressBar.setValue(np.ceil((trainTime + 1) / float(trainRound) * 100))
-            if (trainTime + 1) % 5 == 0:
-                plt.figure(figsize=(8,5))
-                plt.plot(trainTimeList, trainCostList, 'b-')
-                plt.xlabel('Training times')
-                plt.ylabel('Training cost')
-                plt.xlim(0, trainRound + 2)
-                plt.ylim(0, 1.6 * trainCostList[0])
-                trainPicAccessLock.acquire()
-                plt.savefig('TrainingCost.png')
-                trainPicAccessLock.release()
-                plt.close()
+            # if (trainTime + 1) % 5 == 0:
+            #     pass
 
+        plt.figure(figsize=(8, 5))
+        plt.xlabel('Training times')
+        plt.ylabel('Training cost')
+        plt.xlim(0, trainRound + 2)
+        plt.ylim(0, 1.6 * trainCostList[0])
+        plt.plot(trainTimeList, trainCostList, 'b-')
 
         print(accuracyEvaluate.classifyAccuracyRate(self.predictResult, self.data.DataTrainY))
 
@@ -411,9 +409,10 @@ if __name__ == '__main__':
     # mcnn = myCombineCNN(irisDATA, 2, 5, 4)
     # mcnn.trainCNN(1600,0.2, [True])
 
-    irisDATA = myLoadData.loadData('..\\iris.txt', 0.3, -1)
+    irisDATA = myLoadData.loadData('iris.txt', 0.3, -1)
     mcnn = myCombineCNN(irisDATA, 2, 5, 4)
-    mcnn.trainCNN(1600,0.2, [True], threading.Lock())
+    # mcnn.trainCNN(1600,0.2)
+    mcnn.trainCNN(1200,0.2)
 
 
 

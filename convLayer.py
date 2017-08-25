@@ -1,6 +1,6 @@
 import numpy as np
 import myLoadData
-from MyCombCNNPack import activationFunction, combineFeature
+import activationFunction, combineFeature
 
 
 class convLayerCore:
@@ -46,12 +46,6 @@ class convLayerCore:
 
         self.__outputDataX = np.dot(self.__inputDataX, self.__w)
         # print(np.dot(self.__inputDataX, self.__w).shape)
-        for sample in self.__inputDataX:
-            break;
-            print(sample)
-            outputSample = np.dot(sample, self.__w)
-            print(self.__w)
-            print(outputSample)
 
         self.__outputDataAct = activationFunction.leakyReLU(self.__outputDataX, self.__leakyRate)
 
@@ -81,7 +75,7 @@ class convLayerCore:
         for i in range(sampleNum):
             wGradient += np.dot(self.__inputDataX[i, :, :].T, sensitivityFactor[i, :, :])
 
-        wGradient *= (1/sampleNum)
+        wGradient *= (1/float(sampleNum))
 
         formerLayerSF = list()
         for i in range(sampleNum):

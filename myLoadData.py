@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import dataLossSimulator
+import copy
 class loadIris:
     # DataX = None
     # DataTrainX = None
@@ -70,7 +71,7 @@ class loadIris:
         # print(randomChange)
         # randomChange.sort()
         # print(randomChange)
-        sampleTemp = self.sampleList.copy()
+        sampleTemp = copy.deepcopy(self.sampleList)
         for i in orderList:
             self.sampleList[i] = sampleTemp[randomChange[i]]
 
@@ -176,7 +177,7 @@ class loadData:
             linetemp = []
             for data in dataStrList:
                 if data in self.yClassDic:
-                    ylabelVec = ylabelVecTemplate.copy()
+                    ylabelVec = copy.deepcopy(ylabelVecTemplate)
                     ylabelVec[self.yClassDic[data]] = 1
                     # print(ylabelVec)
                     linetemp.append(ylabelVec)
@@ -195,7 +196,7 @@ class loadData:
         # print(randomChange)
         # randomChange.sort()
         # print(randomChange)
-        sampleTemp = self.sampleList.copy()
+        sampleTemp = copy.deepcopy(self.sampleList)
         for i in orderList:
             self.sampleList[i] = sampleTemp[randomChange[i]]
 
@@ -305,4 +306,4 @@ if __name__ == '__main__':
     # loadiris = loadIris()
     myloadData = loadData('iris.txt', 0.3, -1.)
     myloadData.MeanPreProcess()
-    print(myloadData.DataTrainX, '\n', myloadData.DataTrainY)
+    print myloadData.DataTrainX, '\n', myloadData.DataTrainY

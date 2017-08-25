@@ -1,6 +1,6 @@
 import numpy as np
 import myLoadData
-from MyCombCNNPack import combineFeature, convLayer
+import combineFeature, convLayer
 
 class maxPoolingLayerCore:
 

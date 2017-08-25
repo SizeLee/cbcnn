@@ -1,7 +1,7 @@
 from sklearn.metrics import confusion_matrix
 import numpy as np
 import matplotlib.pyplot as plt
-from MyCombCNNPack import accuracyEvaluate
+import accuracyEvaluate
 
 class myJudge:
     def __init__(self, yClassDic, yPredict, yReal):

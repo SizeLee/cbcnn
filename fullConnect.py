@@ -1,6 +1,6 @@
 import numpy as np
 
-from MyCombCNNPack import activationFunction
+import activationFunction
 
 
 class fullConnectInputLayer:
@@ -59,7 +59,7 @@ class fullConnectInputLayer:
             exit(1)  # todo throw out error
 
         delt = sensitivityFactor * activationFunction.sigmoidGradient(self.__outputDataX)
-        wGradient = 1/self.sampleNum * np.dot(self.__inputDataX.T, delt)
+        wGradient = 1/float(self.sampleNum) * np.dot(self.__inputDataX.T, delt)
 
         sensitivityFactorFormerLayer = np.dot(delt, self.__w[1:, :].T)
         self.__w = self.__w - self.__trainRate * wGradient
@@ -130,7 +130,7 @@ class fullConnectMidLayer:
             exit(1) #todo throw out error
 
         delt = (self.__outputYAct - self.__yLabel) * activationFunction.sigmoidGradient(self.__outputY)
-        wGradient = 1/self.sampleNum * np.dot(self.__midInputDataX.T, delt)
+        wGradient = 1/float(self.sampleNum) * np.dot(self.__midInputDataX.T, delt)
         sensitivityFactorFormerLayer = np.dot(delt, self.__w[1:,:].T)
 
         self.__w = self.__w - self.__trainRate * wGradient

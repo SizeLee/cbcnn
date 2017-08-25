@@ -10,7 +10,7 @@ def classifyAccuracyRate(ypredict, ylabel):
         if ypredictMax[i] == ylabel[i]:
             right += 1;
 
-    return right/sampleNum
+    return right/float(sampleNum)
 
 def AccuracyRate(ypredictArgmaxList, ylabelArgmaxList):
     sampleNum = len(ylabelArgmaxList)
@@ -19,6 +19,6 @@ def AccuracyRate(ypredictArgmaxList, ylabelArgmaxList):
         if ypredictArgmaxList[i] == ylabelArgmaxList[i]:
             right += 1
 
-    accuracy = right/sampleNum
+    accuracy = right/float(sampleNum)
 
     return accuracy

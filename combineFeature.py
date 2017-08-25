@@ -1,3 +1,4 @@
+#coding:utf-8
 import numpy as np
 import myLoadData
 
@@ -30,8 +31,8 @@ class combineFeature:
 
         self.__combineFun(considerFeatureNo+1, alreadyCombine, *combine)
 
-        self.__combineFun(considerFeatureNo + 1, alreadyCombine + 1, *combine, considerFeatureNo)
-        # self.__combineFun(considerFeatureNo + 1, alreadyCombine + 1, *combine + (considerFeatureNo,))
+        # self.__combineFun(considerFeatureNo + 1, alreadyCombine + 1, *combine, considerFeatureNo)
+        self.__combineFun(considerFeatureNo + 1, alreadyCombine + 1, *combine + (considerFeatureNo,))
 
     def outputCombineMap(self):
         # self.__combineFun(0,0,)
