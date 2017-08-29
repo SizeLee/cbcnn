@@ -15,7 +15,8 @@ class myCombineCNN:
         self.convCoreList1 = list()
         self.convCoreOut1 = None
 
-        self.poolingCoreList1 = list()
+        # self.poolingCoreList1 = list()
+        self.combPoolingLayer1 = list()
         self.poolingCoreOut1 = None
         self.combineNumPooling1 = combineNumPooling1
         self.combPoolingLayer1 = None
@@ -152,18 +153,22 @@ class myCombineCNN:
             convCoreTemp = convLayer.convLayerCore(inputDataX.shape[2], trainRate)
             self.convCoreList1.append(convCoreTemp)
             self.convCoreOut1.append(convCoreTemp.calculate(inputDataX))
+            # print self.convCoreOut1[i]
 
-        self.combPoolingLayer1 = combineFeature.combineFeature(combKindNumConv1, self.combineNumPooling1)
+        self.combPoolingLayer1 = list()
         combKindNumPooling1 = combineNumCalculate.combineNumCal(combKindNumConv1, self.combineNumPooling1)
 
-        self.poolingCoreList1 = list()
+        # self.poolingCoreList1 = list()
         self.poolingCoreOut1 = list()
         for i in range(self.convCoreNum1):
 
-            inputPoolingData = self.combPoolingLayer1.makeCombineData(self.convCoreOut1[i])
-            poolingCoreTemp = maxPoolingLayer.maxPoolingLayerCore()
-            self.poolingCoreList1.append(poolingCoreTemp)
-            self.poolingCoreOut1.append(poolingCoreTemp.calculate(inputPoolingData))
+            combpoolingcoreTemp = combineFeature.maxCombineFeature(combKindNumConv1, self.combineNumPooling1)
+            self.combPoolingLayer1.append(combpoolingcoreTemp)
+            self.poolingCoreOut1.append(combpoolingcoreTemp.combineAndPooling(self.convCoreOut1[i]))
+            # inputPoolingData = self.combPoolingLayer1.makeCombineData(self.convCoreOut1[i])
+            # poolingCoreTemp = maxPoolingLayer.maxPoolingLayerCore()
+            # self.poolingCoreList1.append(poolingCoreTemp)
+            # self.poolingCoreOut1.append(poolingCoreTemp.calculate(inputPoolingData))
 
         for i in range(self.convCoreNum1):
 
@@ -202,9 +207,9 @@ class myCombineCNN:
             # print(SFtemp.shape)
             self.poolingSFlist.append(SFtemp)
 
-        formerLayerSF = list()
-        for i in range(self.convCoreNum1):
-            formerLayerSF.append(self.poolingCoreList1[i].BP(self.poolingSFlist[i]))
+        # formerLayerSF = list()
+        # for i in range(self.convCoreNum1):
+        #     formerLayerSF.append(self.combPoolingLayer1[i].BP(self.poolingSFlist[i]))
 
         # print(formerLayerSF[0])
 
@@ -212,7 +217,7 @@ class myCombineCNN:
 
         self.convSFlist = list()
         for i in range(self.convCoreNum1):
-            self.convSFlist.append(self.combPoolingLayer1.BP(formerLayerSF[i]))
+            self.convSFlist.append(self.combPoolingLayer1[i].BP(self.poolingSFlist[i]))
 
         # print(formerLayerSF)
         # print(formerLayerSF[0].shape)
@@ -263,13 +268,6 @@ class myCombineCNN:
             # if (trainTime + 1) % 5 == 0:
             #     pass
 
-        plt.figure(figsize=(8, 5))
-        plt.xlabel('Training times')
-        plt.ylabel('Training cost')
-        plt.xlim(0, trainRound + 2)
-        plt.ylim(0, 1.6 * trainCostList[0])
-        plt.plot(trainTimeList, trainCostList, 'b-')
-
         print(accuracyEvaluate.classifyAccuracyRate(self.predictResult, self.data.DataTrainY))
 
         self.forwardPropagation(self.data.DataTestX)
@@ -277,6 +275,14 @@ class myCombineCNN:
         print(costFunc.costCal(self.predictResult, self.data.DataTestY))
         print(self.data.DataTestY)
         print(accuracyEvaluate.classifyAccuracyRate(self.predictResult, self.data.DataTestY))
+
+        plt.figure(figsize=(8, 5))
+        plt.xlabel('Training times')
+        plt.ylabel('Training cost')
+        plt.xlim(0, trainRound + 2)
+        plt.ylim(0, 1.6 * trainCostList[0])
+        plt.plot(trainTimeList, trainCostList, 'b-')
+        plt.show()
 
 
     def forwardPropagation(self, inputDataX = None):
@@ -303,8 +309,8 @@ class myCombineCNN:
 
         self.poolingCoreOut1 = list()
         for i in range(self.convCoreNum1):
-            inputPoolingData = self.combPoolingLayer1.makeCombineData(self.convCoreOut1[i])
-            self.poolingCoreOut1.append(self.poolingCoreList1[i].calculate(inputPoolingData))
+            # inputPoolingData = self.combPoolingLayer1.makeCombineData(self.convCoreOut1[i])
+            self.poolingCoreOut1.append(self.combPoolingLayer1[i].combineAndPooling(self.convCoreOut1[i]))
 
         self.allConnectData = None
         for i in range(self.convCoreNum1):
@@ -341,9 +347,9 @@ class myCombineCNN:
             # print(SFtemp.shape)
             self.poolingSFlist.append(SFtemp)
 
-        formerLayerSF = list()
-        for i in range(self.convCoreNum1):
-            formerLayerSF.append(self.poolingCoreList1[i].BP(self.poolingSFlist[i]))
+        # formerLayerSF = list()
+        # for i in range(self.convCoreNum1):
+        #     formerLayerSF.append(self.poolingCoreList1[i].BP(self.poolingSFlist[i]))
 
         # print(formerLayerSF[0])
 
@@ -351,7 +357,7 @@ class myCombineCNN:
 
         self.convSFlist = list()
         for i in range(self.convCoreNum1):
-            self.convSFlist.append(self.combPoolingLayer1.BP(formerLayerSF[i]))
+            self.convSFlist.append(self.combPoolingLayer1[i].BP(self.poolingSFlist[i]))
 
         # print(formerLayerSF)
         # print(formerLayerSF[0].shape)

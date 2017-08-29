@@ -1,6 +1,7 @@
 #coding:utf-8
 import numpy as np
 import myLoadData
+import combineNumCalculate
 
 class combineFeature:
     # __featureNum = 0
@@ -105,17 +106,97 @@ class combineFeature:
         # print(formerSF)
         return formerSF
 
-if __name__ == '__main__':
-    a = combineFeature(4,2)
-    a.outputCombineMap()
+class maxCombineFeature:
+    def __init__(self, featureNum, combineNum):
+        self.__featureNum = 0
+        self.__combineNum = 0
+        self.__featureCombineMap = []
+        self.__featureConnection = []
+        self.__poolingPosition = None
+        self.__outputDataX = None
 
-    a = combineFeature(4, 2)
-    a.outputCombineMap()
-    irisData = myLoadData.loadIris()
-    b = a.makeCombineData(irisData.DataTrainX)
-    print(b)
-    print(b.shape)
-    a = combineFeature(6, 4)
+        for i in range(featureNum):
+            self.__featureConnection.append([])
+
+        self.__featureNum = featureNum
+        self.__combineNum = combineNum
+
+        if self.__featureNum < self.__combineNum:
+            print("Warning in combineFeature: feature Num is smaller combine Num, No combine will be make\n")
+
+        self.__combCount = combineNumCalculate.combineNumCal(self.__featureNum, self.__combineNum)
+
+        self.__combineFun(0, 0, )
+
+    def __combineFun(self, considerFeatureNo, alreadyCombine, *combine):
+        # print(*combine)
+        if alreadyCombine == self.__combineNum:
+            # print(combine)
+            self.__featureCombineMap.append(combine)
+            for i in combine:
+                self.__featureConnection[i].append((len(self.__featureCombineMap) - 1))
+
+            return
+        elif considerFeatureNo >= self.__featureNum:
+            return
+
+        self.__combineFun(considerFeatureNo+1, alreadyCombine, *combine)
+
+        # self.__combineFun(considerFeatureNo + 1, alreadyCombine + 1, *combine, considerFeatureNo)
+        self.__combineFun(considerFeatureNo + 1, alreadyCombine + 1, *combine + (considerFeatureNo,))
+
+
+
+    def combineAndPooling(self, data):
+        dataArgSort = np.argsort(data, axis=1)
+        self.__outputDataX = np.ones((data.shape[0], self.__combCount)) * (-1)
+        self.__poolingPosition = np.zeros((data.shape[0], self.__combCount), dtype=int)
+        for sample in range(dataArgSort.shape[0]):
+            for rankindex in range(self.__featureNum - self.__combineNum + 1):
+
+                opfeatureindex = dataArgSort[sample, -1-rankindex, 0]
+
+                for combindex in self.__featureConnection[opfeatureindex]:
+                    if self.__outputDataX[sample, combindex] == -1:
+                        self.__outputDataX[sample, combindex] = data[sample, opfeatureindex, 0]
+                        self.__poolingPosition[sample, combindex] = int(opfeatureindex)
+
+        return self.__outputDataX
+
+    def BP(self, sensitivityFactor):
+
+        sampleNum = sensitivityFactor.shape[0]
+        combNum = sensitivityFactor.shape[1]
+
+        formerSF = np.zeros((sampleNum, self.__featureNum, 1))
+
+        for i in range(sampleNum):
+            for j in range(combNum):
+                formerSF[i, self.__poolingPosition[i, j], 0] += sensitivityFactor[i, j]
+
+        # print(sensitivityFactor)
+        # print(self.__featureCombineMap)
+        # print(formerSF)
+        return formerSF
+
+    def outputCombineMap(self):
+        # self.__combineFun(0,0,)
+        print(self.__featureCombineMap)
+        print self.__featureConnection
+
+
+
+if __name__ == '__main__':
+    # a = combineFeature(4,2)
+    # a.outputCombineMap()
+    #
+    # a = combineFeature(4, 2)
+    # a.outputCombineMap()
+    # irisData = myLoadData.loadIris()
+    # b = a.makeCombineData(irisData.DataTrainX)
+    # print(b)
+    # print(b.shape)
+    a = maxCombineFeature(6, 4)
     a.outputCombineMap()
 
 
