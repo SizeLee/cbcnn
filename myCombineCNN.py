@@ -155,27 +155,14 @@ class myCombineCNN:
             self.convCoreOut1.append(convCoreTemp.calculate(inputDataX))
             # print self.convCoreOut1[i]
 
-        self.combPoolingLayer1 = list()
-        combKindNumPooling1 = combineNumCalculate.combineNumCal(combKindNumConv1, self.combineNumPooling1)
 
-        # self.poolingCoreList1 = list()
-        self.poolingCoreOut1 = list()
-        for i in range(self.convCoreNum1):
-
-            combpoolingcoreTemp = combineFeature.maxCombineFeature(combKindNumConv1, self.combineNumPooling1)
-            self.combPoolingLayer1.append(combpoolingcoreTemp)
-            self.poolingCoreOut1.append(combpoolingcoreTemp.combineAndPooling(self.convCoreOut1[i]))
-            # inputPoolingData = self.combPoolingLayer1.makeCombineData(self.convCoreOut1[i])
-            # poolingCoreTemp = maxPoolingLayer.maxPoolingLayerCore()
-            # self.poolingCoreList1.append(poolingCoreTemp)
-            # self.poolingCoreOut1.append(poolingCoreTemp.calculate(inputPoolingData))
 
         for i in range(self.convCoreNum1):
 
             if self.allConnectData is None:
-                self.allConnectData = self.poolingCoreOut1[i]
+                self.allConnectData = self.convCoreOut1[i]
             else:
-                self.allConnectData = np.hstack((self.allConnectData, self.poolingCoreOut1[i]))
+                self.allConnectData = np.hstack((self.allConnectData, self.convCoreOut1[i]))
 
         # print(self.allConnectData)
         # print(self.allConnectData.shape)
@@ -201,27 +188,13 @@ class myCombineCNN:
         ####### max pooling layer BP
         splitStep = int(formerLayerSF.shape[1] / self.convCoreNum1)
 
-        self.poolingSFlist = list()
+        self.convSFlist = list()
         for i in range(self.convCoreNum1):
             SFtemp = formerLayerSF[:, i * splitStep : (i + 1) * splitStep].copy()
             # print(SFtemp.shape)
-            self.poolingSFlist.append(SFtemp)
+            self.convSFlist.append(SFtemp)
 
-        # formerLayerSF = list()
-        # for i in range(self.convCoreNum1):
-        #     formerLayerSF.append(self.combPoolingLayer1[i].BP(self.poolingSFlist[i]))
 
-        # print(formerLayerSF[0])
-
-        ######################    combine feature BP
-
-        self.convSFlist = list()
-        for i in range(self.convCoreNum1):
-            self.convSFlist.append(self.combPoolingLayer1[i].BP(self.poolingSFlist[i]))
-
-        # print(formerLayerSF)
-        # print(formerLayerSF[0].shape)
-        # print(len(formerLayerSF))
 
         #####################   conv layer BP
         for i in range(self.convCoreNum1):
@@ -304,21 +277,14 @@ class myCombineCNN:
 
             self.convCoreOut1.append(self.convCoreList1[i].calculate(inputDataX))
 
-        # self.combPoolingLayer1 = combineFeature.combineFeature(combKindNumConv1, self.combineNumPooling1)
-        # combKindNumPooling1 = combineNumCalculate.combineNumCal(combKindNumConv1, self.combineNumPooling1)
-
-        self.poolingCoreOut1 = list()
-        for i in range(self.convCoreNum1):
-            # inputPoolingData = self.combPoolingLayer1.makeCombineData(self.convCoreOut1[i])
-            self.poolingCoreOut1.append(self.combPoolingLayer1[i].combineAndPooling(self.convCoreOut1[i]))
 
         self.allConnectData = None
         for i in range(self.convCoreNum1):
 
             if self.allConnectData is None:
-                self.allConnectData = self.poolingCoreOut1[i]
+                self.allConnectData = self.convCoreOut1[i]
             else:
-                self.allConnectData = np.hstack((self.allConnectData, self.poolingCoreOut1[i]))
+                self.allConnectData = np.hstack((self.allConnectData, self.convCoreOut1[i]))
 
         # print(self.allConnectData)
         # print(self.allConnectData.shape)
@@ -341,27 +307,12 @@ class myCombineCNN:
         ####### max pooling layer BP
         splitStep = int(formerLayerSF.shape[1] / self.convCoreNum1)
 
-        self.poolingSFlist = list()
+        self.convSFlist = list()
         for i in range(self.convCoreNum1):
             SFtemp = formerLayerSF[:, i * splitStep: (i + 1) * splitStep].copy()
             # print(SFtemp.shape)
-            self.poolingSFlist.append(SFtemp)
+            self.convSFlist.append(SFtemp)
 
-        # formerLayerSF = list()
-        # for i in range(self.convCoreNum1):
-        #     formerLayerSF.append(self.poolingCoreList1[i].BP(self.poolingSFlist[i]))
-
-        # print(formerLayerSF[0])
-
-        ######################    combine feature BP
-
-        self.convSFlist = list()
-        for i in range(self.convCoreNum1):
-            self.convSFlist.append(self.combPoolingLayer1[i].BP(self.poolingSFlist[i]))
-
-        # print(formerLayerSF)
-        # print(formerLayerSF[0].shape)
-        # print(len(formerLayerSF))
 
         #####################   conv layer BP
         for i in range(self.convCoreNum1):
@@ -418,7 +369,7 @@ if __name__ == '__main__':
     irisDATA = myLoadData.loadData('iris.txt', 0.3, -1)
     mcnn = myCombineCNN(irisDATA, 2, 5, 4)
     # mcnn.trainCNN(1600,0.2)
-    mcnn.trainCNN(1200,0.2)
+    mcnn.trainCNN(1200,0.25)
 
 
 

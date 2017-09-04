@@ -49,11 +49,12 @@ class convLayerCore:
 
         self.__outputDataAct = activationFunction.leakyReLU(self.__outputDataX, self.__leakyRate)
 
-        return self.__outputDataAct.copy()
+        return self.__outputDataAct.reshape(self.__outputDataAct.shape[0], self.__outputDataAct.shape[1])
 
     #todo def BP function
 
     def BP(self, sensitivityFactor):
+        sensitivityFactor = sensitivityFactor.reshape((sensitivityFactor.shape[0], sensitivityFactor.shape[1], 1))
         if self.__outputDataX is None:
             print('Error in conv layer BP: no exist output data in conv layer core for BP\n')
             exit(1) #todo throw out error
