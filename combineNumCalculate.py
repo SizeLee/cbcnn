@@ -14,4 +14,4 @@ def combineNumCal(all, take):
 
 if __name__ == '__main__':
     print(combineNumCal(6, 4))
-    print(combineNumCal(10, 4))
+    print(combineNumCal(13, 4))

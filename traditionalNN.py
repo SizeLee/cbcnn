@@ -24,7 +24,7 @@ class traditionalNN:
     def getAccuratePredictResult(self):
         return self.predictResult.copy()
 
-    def train(self, trainRound, trainRate, LoutinRate, trainContinueFlag, trainPicAccessLock):
+    def train(self, trainRound, trainRate, LoutinRate):
 
         self.inputLayer = fullConnect.fullConnectInputLayer(self.data.DataTrainX.shape, trainRate, LoutinRate)
         self.midData = self.inputLayer.calculate(self.data.DataTrainX)
@@ -40,8 +40,7 @@ class traditionalNN:
         trainTimeList = [0]
         ###################### start train in round
         for trainTime in range(trainRound - 1):
-            if not trainContinueFlag[0]:
-                break
+
             # print('1')
             self.forwardPropagation()
             # print('mid')
@@ -51,22 +50,13 @@ class traditionalNN:
             # self.forwardPropagation(self.combConvLayer1.makeCombineData(self.data.DataValX))
             # valCost = costFunc.costCal(self.predictResult, self.data.DataValY)
             # print(trainCost, valCost)
-            # print(trainCost)
+            print(trainCost)
             trainCostList.append(trainCost)
             trainTimeList.append(trainTime + 1)
             self.__trainingProgress = (trainTime + 1) / float(trainRound)
             #     progressBar.setValue(np.ceil((trainTime + 1) / float(trainRound) * 100))
-            if (trainTime + 1) % 5 == 0:
-                plt.figure(figsize=(8, 5))
-                plt.plot(trainTimeList, trainCostList, 'b-')
-                plt.xlabel('Training times')
-                plt.ylabel('Training cost')
-                plt.xlim(0, trainRound + 2)
-                plt.ylim(0, 1.6 * trainCostList[0])
-                trainPicAccessLock.acquire()
-                plt.savefig('TrainingCost.png')
-                trainPicAccessLock.release()
-                plt.close()
+
+
 
         print(accuracyEvaluate.classifyAccuracyRate(self.predictResult, self.data.DataTrainY))
 
@@ -75,6 +65,15 @@ class traditionalNN:
         print(costFunc.costCal(self.predictResult, self.data.DataTestY))
         print(self.data.DataTestY)
         print(accuracyEvaluate.classifyAccuracyRate(self.predictResult, self.data.DataTestY))
+
+        plt.figure(figsize=(8, 5))
+        plt.plot(trainTimeList, trainCostList, 'b-')
+        plt.xlabel('Training times')
+        plt.ylabel('Training cost')
+        plt.xlim(0, trainRound + 2)
+        plt.ylim(0, 1.6 * trainCostList[0])
+        # plt.savefig('TrainingCost.png')
+        plt.show()
 
 
     def runTraNN(self, setChoose = 'Train', data = None):
@@ -157,7 +156,7 @@ class traditionalNN:
             json.dump(model, fp)
             fp.close()
 
-        except FileNotFoundError:
+        except Exception:
             return False
 
         return True
@@ -169,7 +168,7 @@ class traditionalNN:
             model = json.load(fp)
             fp.close()
 
-        except FileNotFoundError:
+        except Exception:
             return False
 
         self.inputLayer = fullConnect.fullConnectInputLayer(model['fullConnect']['inputLayer']['inputDataShape'],
@@ -189,6 +188,11 @@ class traditionalNN:
         return True
 
 if __name__ == '__main__':
-    irisDATA = myLoadData.loadData('..\\iris.txt')
-    traNN = traditionalNN(irisDATA)
-    traNN.train(500, 0.9, 2, [True], threading.Lock())
+    # irisDATA = myLoadData.loadData('iris.txt')
+    # traNN = traditionalNN(irisDATA)
+
+    wineData = myLoadData.loadData('wine.txt', 0.3, -1)
+    wineData.minmax_scale()
+    wineData.MeanPreProcess()
+    traNN = traditionalNN(wineData)
+    traNN.train(900, 0.9, 2)

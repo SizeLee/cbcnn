@@ -215,8 +215,11 @@ class loadData:
         # print(self.IrisDataX)
         # print(self.IrisDataY)
 
-        self.DataTrainX = self.DataX[:int(0.6 * sampleCount), :]
-        self.DataTrainY = self.DataY[:int(0.6 * sampleCount), :]
+        # self.DataTrainX = self.DataX[:int(0.6 * sampleCount), :]
+        # self.DataTrainY = self.DataY[:int(0.6 * sampleCount), :]
+
+        self.DataTrainX = self.DataX[:int(0.8 * sampleCount), :]
+        self.DataTrainY = self.DataY[:int(0.8 * sampleCount), :]
 
         self.DataValX = self.DataX[int(0.6 * sampleCount):int(0.8 * sampleCount), :]
         self.DataValY = self.DataY[int(0.6 * sampleCount):int(0.8 * sampleCount), :]
@@ -244,6 +247,41 @@ class loadData:
         self.DataTrainX = self.DataTrainXLoss
         self.DataValX = self.DataValXLoss
         self.DataTestX = self.DataTestXLoss
+
+    def minmax_scale(self):  ###min max scale
+        feature =  self.DataTrainX.shape[1]
+        sample = self.DataTrainX.shape[0]
+        maxarray = self.DataTrainX[0, :].copy()
+        minarray = self.DataTrainX[0, :].copy()
+        # print maxlist,minlist
+        # print maxlist is minlist
+        for i in range(sample):
+            for j in range(feature):
+                if self.DataTrainX[i, j]!=self.setLossValue:
+                    if self.DataTrainX[i,j]>maxarray[j]:
+                        maxarray[j] = self.DataTrainX[i, j]
+                    elif self.DataTrainX[i,j]<minarray[j]:
+                        minarray[j] = self.DataTrainX[i, j]
+
+        # print maxlist, minlist
+        self.DataTrainX = (self.DataTrainX - minarray)/(maxarray - minarray)
+        # print self.DataTrainX
+        self.DataTestX = (self.DataTestX - minarray)/(maxarray - minarray)
+        self.DataValX = (self.DataValX - minarray)/(maxarray - minarray)
+
+        # self.__scaleprocess(self.DataTrainX, minarray, maxarray)
+        # self.__scaleprocess(self.DataValX, minarray, maxarray)
+        # self.__scaleprocess(self.DataTestX, minarray, maxarray)
+
+        # print self.DataTrainX
+
+        return
+
+    def __scaleprocess(self, data, minarray, maxarray):
+        for sample in range(data.shape[0]):
+            for feature in range(data.shape[1]):
+                if data[sample, feature] != self.setLossValue:
+                    data[sample, feature] = (data[sample, feature] - minarray[feature])/maxarray[feature]
 
 
     def MeanPreProcess(self):
@@ -305,5 +343,6 @@ class loadData:
 if __name__ == '__main__':
     # loadiris = loadIris()
     myloadData = loadData('iris.txt', 0.3, -1.)
-    myloadData.MeanPreProcess()
-    print myloadData.DataTrainX, '\n', myloadData.DataTrainY
+    # myloadData.MeanPreProcess()
+    # print myloadData.DataTrainX, '\n', myloadData.DataTrainY
+    myloadData.minmax_scale()

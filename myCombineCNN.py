@@ -7,7 +7,7 @@ import accuracyEvaluate, combineFeature, combineNumCalculate, costFunc, convLaye
 
 
 class myCombineCNN:
-    def __init__(self, data, combineNumConv1, convCoreNum1, combineNumPooling1):
+    def __init__(self, data, combineNumConv1, convCoreNum1):
         self.data = data
         self.combineNumConv1 = combineNumConv1
         self.combConvLayer1 = None
@@ -18,7 +18,7 @@ class myCombineCNN:
         # self.poolingCoreList1 = list()
         self.combPoolingLayer1 = list()
         self.poolingCoreOut1 = None
-        self.combineNumPooling1 = combineNumPooling1
+        # self.combineNumPooling1 = combineNumPooling1
         self.combPoolingLayer1 = None
 
         self.allConnectData = None
@@ -63,11 +63,11 @@ class myCombineCNN:
         for i in range(self.convCoreNum1):
             model['convLayer']['convCore']['weight'].append(self.convCoreList1[i].getWeight())
 
-        model['poolingLayer'] = {}
-        model['poolingLayer']['combPooling'] = {}
-        # midCombNum = combineNumCalculate.combineNumCal(self.data.DataX.shape[1], self.combineNumConv1)
-        model['poolingLayer']['combPooling']['all'] = self.combPoolingLayer1.getFeatureNum()
-        model['poolingLayer']['combPooling']['take'] = self.combPoolingLayer1.getCombineNum()
+        # model['poolingLayer'] = {}
+        # model['poolingLayer']['combPooling'] = {}
+        # # midCombNum = combineNumCalculate.combineNumCal(self.data.DataX.shape[1], self.combineNumConv1)
+        # model['poolingLayer']['combPooling']['all'] = self.combPoolingLayer1.getFeatureNum()
+        # model['poolingLayer']['combPooling']['take'] = self.combPoolingLayer1.getCombineNum()
 
         model['fullConnect'] = {}
         model['fullConnect']['inputLayer'] = {}
@@ -114,12 +114,12 @@ class myCombineCNN:
             convCoreTemp.setWeight(model['convLayer']['convCore']['weight'][i])
             self.convCoreList1.append(convCoreTemp)
 
-        self.combPoolingLayer1 = combineFeature.combineFeature(model['poolingLayer']['combPooling']['all'],
-                                                               model['poolingLayer']['combPooling']['take'])
-        self.poolingCoreList1 = list()
-        for i in range(model['convLayer']['convCore']['Num']):
-            poolingCoreTemp = maxPoolingLayer.maxPoolingLayerCore()
-            self.poolingCoreList1.append(poolingCoreTemp)
+        # self.combPoolingLayer1 = combineFeature.combineFeature(model['poolingLayer']['combPooling']['all'],
+        #                                                        model['poolingLayer']['combPooling']['take'])
+        # self.poolingCoreList1 = list()
+        # for i in range(model['convLayer']['convCore']['Num']):
+        #     poolingCoreTemp = maxPoolingLayer.maxPoolingLayerCore()
+        #     self.poolingCoreList1.append(poolingCoreTemp)
 
         self.fullInputLayer = fullConnect.fullConnectInputLayer(model['fullConnect']['inputLayer']['inputDataShape'],
                                                                 0.2)
@@ -221,7 +221,7 @@ class myCombineCNN:
             # self.forwardPropagation(self.combConvLayer1.makeCombineData(self.data.DataValX))
             # valCost = costFunc.costCal(self.predictResult, self.data.DataValY)
             # print(trainCost, valCost)
-            # print(trainCost)
+            print(trainCost)
 
             # if trainCost > lastTrainCost:
             #     trainRate = trainRate / 2
@@ -233,13 +233,16 @@ class myCombineCNN:
             #     print(trainRate)
             #
             # lastTrainCost = trainCost
-            print trainCost
+            # print trainCost
             trainCostList.append(trainCost)
             trainTimeList.append(trainTime + 1)
             self.__trainingProgress = (trainTime + 2) / float(trainRound)
             #     progressBar.setValue(np.ceil((trainTime + 1) / float(trainRound) * 100))
             # if (trainTime + 1) % 5 == 0:
             #     pass
+            # if trainCost<0.09:
+            #     print 'train round:', trainTime
+            #     break
 
         print(accuracyEvaluate.classifyAccuracyRate(self.predictResult, self.data.DataTrainY))
 
@@ -366,10 +369,12 @@ if __name__ == '__main__':
     # mcnn = myCombineCNN(irisDATA, 2, 5, 4)
     # mcnn.trainCNN(1600,0.2, [True])
 
-    irisDATA = myLoadData.loadData('iris.txt', 0.3, -1)
-    mcnn = myCombineCNN(irisDATA, 2, 5, 4)
+    wineDATA = myLoadData.loadData('wine.txt', 0.3, -1)
+    # wineDATA = myLoadData.loadData('wine.txt')
+    wineDATA.minmax_scale()
+    mcnn = myCombineCNN(wineDATA, 2, 5) change architecture， every comb one feature extract
     # mcnn.trainCNN(1600,0.2)
-    mcnn.trainCNN(1200,0.25)
+    mcnn.trainCNN(1600,0.03)
 
 
 
