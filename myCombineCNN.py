@@ -372,9 +372,9 @@ if __name__ == '__main__':
     wineDATA = myLoadData.loadData('wine.txt', 0.3, -1)
     # wineDATA = myLoadData.loadData('wine.txt')
     wineDATA.minmax_scale()
-    mcnn = myCombineCNN(wineDATA, 2, 5) change architecture， every comb one feature extract
+    mcnn = myCombineCNN(wineDATA, 4, 5) #todo change architecture, every comb one feature extract
     # mcnn.trainCNN(1600,0.2)
-    mcnn.trainCNN(1600,0.03)
+    mcnn.trainCNN(3000,0.03)
 
 
 
