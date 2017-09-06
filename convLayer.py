@@ -189,7 +189,7 @@ class MultiConv:
         #
         # formerLayerSF = np.array(formerLayerSF)
 
-        formerLayerSF = delt * self.__w.reshape((1, self.shape[0], self.shape[1]))
+        formerLayerSF = delt * self.__w[:, 1:].reshape((1, self.__w.shape[0], self.__w.shape[1]-1))
 
         self.__w = self.__w - self.__trainRate * wGradient
 
