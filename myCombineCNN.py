@@ -7,13 +7,14 @@ import accuracyEvaluate, combineFeature, combineNumCalculate, costFunc, convLaye
 
 
 class myCombineCNN:
-    def __init__(self, data, combineNumConv1, convCoreNum1):
+    def __init__(self, data, combineNumConv1):
         self.data = data
         self.combineNumConv1 = combineNumConv1
         self.combConvLayer1 = None
-        self.convCoreNum1 = convCoreNum1
+        # self.convCoreNum1 = convCoreNum1
         self.convCoreList1 = list()
         self.convCoreOut1 = None
+        self.multiConvLayer = None
 
         # self.poolingCoreList1 = list()
         self.combPoolingLayer1 = list()
@@ -146,23 +147,25 @@ class myCombineCNN:
         combKindNumConv1 = combineNumCalculate.combineNumCal(self.data.DataX.shape[1], self.combineNumConv1)
         inputDataX = self.combConvLayer1.makeCombineData(self.data.DataTrainX)
 
-        self.convCoreList1 = list()
-        self.convCoreOut1 = list()
-        for i in range(self.convCoreNum1):
-
-            convCoreTemp = convLayer.convLayerCore(inputDataX.shape[2], trainRate)
-            self.convCoreList1.append(convCoreTemp)
-            self.convCoreOut1.append(convCoreTemp.calculate(inputDataX))
-            # print self.convCoreOut1[i]
-
-
-
-        for i in range(self.convCoreNum1):
-
-            if self.allConnectData is None:
-                self.allConnectData = self.convCoreOut1[i]
-            else:
-                self.allConnectData = np.hstack((self.allConnectData, self.convCoreOut1[i]))
+        self.multiConvLayer = convLayer.MultiConv(combKindNumConv1, self.combineNumConv1, trainRate)
+        self.allConnectData = self.multiConvLayer.calculate(inputDataX)
+        # self.convCoreList1 = list()
+        # self.convCoreOut1 = list()
+        # for i in range(self.convCoreNum1):
+        #
+        #     convCoreTemp = convLayer.convLayerCore(inputDataX.shape[2], trainRate)
+        #     self.convCoreList1.append(convCoreTemp)
+        #     self.convCoreOut1.append(convCoreTemp.calculate(inputDataX))
+        #     # print self.convCoreOut1[i]
+        #
+        #
+        #
+        # for i in range(self.convCoreNum1):
+        #
+        #     if self.allConnectData is None:
+        #         self.allConnectData = self.convCoreOut1[i]
+        #     else:
+        #         self.allConnectData = np.hstack((self.allConnectData, self.convCoreOut1[i]))
 
         # print(self.allConnectData)
         # print(self.allConnectData.shape)
@@ -185,20 +188,21 @@ class myCombineCNN:
         formerLayerSF = self.fullInputLayer.BP(formerLayerSF)
         # print(formerLayerSF)
 
+        formerLayerSF = self.multiConvLayer.BP(formerLayerSF)
         ####### max pooling layer BP
-        splitStep = int(formerLayerSF.shape[1] / self.convCoreNum1)
-
-        self.convSFlist = list()
-        for i in range(self.convCoreNum1):
-            SFtemp = formerLayerSF[:, i * splitStep : (i + 1) * splitStep].copy()
-            # print(SFtemp.shape)
-            self.convSFlist.append(SFtemp)
-
-
-
-        #####################   conv layer BP
-        for i in range(self.convCoreNum1):
-            self.convCoreList1[i].BP(self.convSFlist[i])
+        # splitStep = int(formerLayerSF.shape[1] / self.convCoreNum1)
+        #
+        # self.convSFlist = list()
+        # for i in range(self.convCoreNum1):
+        #     SFtemp = formerLayerSF[:, i * splitStep : (i + 1) * splitStep].copy()
+        #     # print(SFtemp.shape)
+        #     self.convSFlist.append(SFtemp)
+        #
+        #
+        #
+        # #####################   conv layer BP
+        # for i in range(self.convCoreNum1):
+        #     self.convCoreList1[i].BP(self.convSFlist[i])
 
         self.trainInitializeFlag = True
 
@@ -275,19 +279,20 @@ class myCombineCNN:
         else:
             inputDataX = self.combConvLayer1.makeCombineData(inputDataX)
 
-        self.convCoreOut1 = list()
-        for i in range(self.convCoreNum1):
-
-            self.convCoreOut1.append(self.convCoreList1[i].calculate(inputDataX))
-
-
-        self.allConnectData = None
-        for i in range(self.convCoreNum1):
-
-            if self.allConnectData is None:
-                self.allConnectData = self.convCoreOut1[i]
-            else:
-                self.allConnectData = np.hstack((self.allConnectData, self.convCoreOut1[i]))
+        self.allConnectData = self.multiConvLayer.calculate(inputDataX)
+        # self.convCoreOut1 = list()
+        # for i in range(self.convCoreNum1):
+        #
+        #     self.convCoreOut1.append(self.convCoreList1[i].calculate(inputDataX))
+        #
+        #
+        # self.allConnectData = None
+        # for i in range(self.convCoreNum1):
+        #
+        #     if self.allConnectData is None:
+        #         self.allConnectData = self.convCoreOut1[i]
+        #     else:
+        #         self.allConnectData = np.hstack((self.allConnectData, self.convCoreOut1[i]))
 
         # print(self.allConnectData)
         # print(self.allConnectData.shape)
@@ -307,19 +312,21 @@ class myCombineCNN:
         formerLayerSF = self.fullInputLayer.BP(formerLayerSF)
         # print(formerLayerSF)
 
+        formerLayerSF = self.multiConvLayer.BP(formerLayerSF)
+
         ####### max pooling layer BP
-        splitStep = int(formerLayerSF.shape[1] / self.convCoreNum1)
-
-        self.convSFlist = list()
-        for i in range(self.convCoreNum1):
-            SFtemp = formerLayerSF[:, i * splitStep: (i + 1) * splitStep].copy()
-            # print(SFtemp.shape)
-            self.convSFlist.append(SFtemp)
-
-
-        #####################   conv layer BP
-        for i in range(self.convCoreNum1):
-            self.convCoreList1[i].BP(self.convSFlist[i])
+        # splitStep = int(formerLayerSF.shape[1] / self.convCoreNum1)
+        #
+        # self.convSFlist = list()
+        # for i in range(self.convCoreNum1):
+        #     SFtemp = formerLayerSF[:, i * splitStep: (i + 1) * splitStep].copy()
+        #     # print(SFtemp.shape)
+        #     self.convSFlist.append(SFtemp)
+        #
+        #
+        # #####################   conv layer BP
+        # for i in range(self.convCoreNum1):
+        #     self.convCoreList1[i].BP(self.convSFlist[i])
 
     def getTrainingProgress(self):
         return self.__trainingProgress
@@ -372,9 +379,10 @@ if __name__ == '__main__':
     wineDATA = myLoadData.loadData('wine.txt', 0.3, -1)
     # wineDATA = myLoadData.loadData('wine.txt')
     wineDATA.minmax_scale()
-    mcnn = myCombineCNN(wineDATA, 4, 5) #todo change architecture, every comb one feature extract
+    mcnn = myCombineCNN(wineDATA, 6) #todo change architecture, every comb one feature extract
+                                     #todo distinguish different sample's loss pattern, training with same loss pattern
     # mcnn.trainCNN(1600,0.2)
-    mcnn.trainCNN(3000,0.03)
+    mcnn.trainCNN(16000,0.03)
 
 
 
