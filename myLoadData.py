@@ -240,9 +240,9 @@ class loadData:
 
         self.lossSimulator = dataLossSimulator.dataLossSimulator(self.DataX.shape[1], self.lossRate, self.setLossValue)
 
-        self.DataTrainXLoss = self.lossSimulator.lossSimulate(self.DataTrainX)
-        self.DataValXLoss = self.lossSimulator.lossSimulate(self.DataValX)
-        self.DataTestXLoss = self.lossSimulator.lossSimulate(self.DataTestX)
+        self.DataTrainXLoss, self.trainXLossLocations = self.lossSimulator.lossSimulate(self.DataTrainX)
+        self.DataValXLoss, self.valXLossLocations = self.lossSimulator.lossSimulate(self.DataValX)
+        self.DataTestXLoss, self.testLossLocations = self.lossSimulator.lossSimulate(self.DataTestX)
 
         self.DataTrainX = self.DataTrainXLoss
         self.DataValX = self.DataValXLoss
@@ -264,14 +264,14 @@ class loadData:
                         minarray[j] = self.DataTrainX[i, j]
 
         # print maxlist, minlist
-        self.DataTrainX = (self.DataTrainX - minarray)/(maxarray - minarray)
-        # print self.DataTrainX
-        self.DataTestX = (self.DataTestX - minarray)/(maxarray - minarray)
-        self.DataValX = (self.DataValX - minarray)/(maxarray - minarray)
+        # self.DataTrainX = (self.DataTrainX - minarray)/(maxarray - minarray)
+        # # print self.DataTrainX
+        # self.DataTestX = (self.DataTestX - minarray)/(maxarray - minarray)
+        # self.DataValX = (self.DataValX - minarray)/(maxarray - minarray)
 
-        # self.__scaleprocess(self.DataTrainX, minarray, maxarray)
-        # self.__scaleprocess(self.DataValX, minarray, maxarray)
-        # self.__scaleprocess(self.DataTestX, minarray, maxarray)
+        self.__scaleprocess(self.DataTrainX, minarray, maxarray)
+        self.__scaleprocess(self.DataValX, minarray, maxarray)
+        self.__scaleprocess(self.DataTestX, minarray, maxarray)
 
         # print self.DataTrainX
 

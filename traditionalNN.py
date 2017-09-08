@@ -38,6 +38,12 @@ class traditionalNN:
         trainCostList = []
         trainCostList.append(trainCost)
         trainTimeList = [0]
+
+        testresult = self.pureForwardPropagation(self.data.DataTestX)
+        testCost = costFunc.costCal(testresult, self.data.DataTestY)
+        testCostList = []
+        testCostList.append(testCost)
+
         ###################### start train in round
         for trainTime in range(trainRound - 1):
 
@@ -53,6 +59,12 @@ class traditionalNN:
             print(trainCost)
             trainCostList.append(trainCost)
             trainTimeList.append(trainTime + 1)
+
+            testresult = self.pureForwardPropagation(self.data.DataTestX)
+            testCost = costFunc.costCal(testresult, self.data.DataTestY)
+            testCostList.append(testCost)
+            print testCost
+
             self.__trainingProgress = (trainTime + 1) / float(trainRound)
             #     progressBar.setValue(np.ceil((trainTime + 1) / float(trainRound) * 100))
 
@@ -68,6 +80,7 @@ class traditionalNN:
 
         plt.figure(figsize=(8, 5))
         plt.plot(trainTimeList, trainCostList, 'b-')
+        plt.plot(trainTimeList, testCostList, 'g-')
         plt.xlabel('Training times')
         plt.ylabel('Training cost')
         plt.xlim(0, trainRound + 2)
@@ -110,6 +123,10 @@ class traditionalNN:
         elif setChoose == 'Validation':
             self.forwardPropagation(self.data.DataValX)
 
+    def pureForwardPropagation(self, inputDataX):
+        midData = self.inputLayer.pureCalculate(inputDataX)
+        predictResult = self.midLayer.pureCalculate(midData)
+        return predictResult
 
     def forwardPropagation(self, inputDataX = None):
         if inputDataX is None:
@@ -192,7 +209,7 @@ if __name__ == '__main__':
     # traNN = traditionalNN(irisDATA)
 
     wineData = myLoadData.loadData('wine.txt', 0.3, -1)
-    wineData.minmax_scale()
     wineData.MeanPreProcess()
+    wineData.minmax_scale()
     traNN = traditionalNN(wineData)
-    traNN.train(900, 0.9, 2)
+    traNN.train(6000, 0.9, 2)

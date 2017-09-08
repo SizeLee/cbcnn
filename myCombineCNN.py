@@ -57,12 +57,15 @@ class myCombineCNN:
         model['convLayer']['combConv'] = {}
         model['convLayer']['combConv']['all'] = self.combConvLayer1.getFeatureNum()
         model['convLayer']['combConv']['take'] = self.combConvLayer1.getCombineNum()
-        model['convLayer']['convCore'] = {}
-        model['convLayer']['convCore']['Num'] = self.convCoreNum1
-        model['convLayer']['convCore']['weight'] = []
+        model['convLayer']['multiConvLayer'] = {}
+        model['convLayer']['multiConvLayer']['weight'] = self.multiConvLayer.getWeight()
 
-        for i in range(self.convCoreNum1):
-            model['convLayer']['convCore']['weight'].append(self.convCoreList1[i].getWeight())
+        # model['convLayer']['convCore'] = {}
+        # model['convLayer']['convCore']['Num'] = self.convCoreNum1
+        # model['convLayer']['convCore']['weight'] = []
+        #
+        # for i in range(self.convCoreNum1):
+        #     model['convLayer']['convCore']['weight'].append(self.convCoreList1[i].getWeight())
 
         # model['poolingLayer'] = {}
         # model['poolingLayer']['combPooling'] = {}
@@ -107,13 +110,17 @@ class myCombineCNN:
 
         self.combConvLayer1 = combineFeature.combineFeature(model['convLayer']['combConv']['all'],
                                                             model['convLayer']['combConv']['take'])
-        self.convCoreList1 = list()
-        self.convCoreNum1 = model['convLayer']['convCore']['Num']
-        for i in range(model['convLayer']['convCore']['Num']):
 
-            convCoreTemp = convLayer.convLayerCore(1, 0.1)
-            convCoreTemp.setWeight(model['convLayer']['convCore']['weight'][i])
-            self.convCoreList1.append(convCoreTemp)
+        combkindnum = self.combConvLayer1.getCombKindNum()
+        self.multiConvLayer = convLayer.MultiConv(combkindnum, model['convLayer']['combConv']['take'])
+        self.multiConvLayer.setWeight(model['convLayer']['multiConvLayer']['weight'])
+        # self.convCoreList1 = list()
+        # self.convCoreNum1 = model['convLayer']['convCore']['Num']
+        # for i in range(model['convLayer']['convCore']['Num']):
+        #
+        #     convCoreTemp = convLayer.convLayerCore(1, 0.1)
+        #     convCoreTemp.setWeight(model['convLayer']['convCore']['weight'][i])
+        #     self.convCoreList1.append(convCoreTemp)
 
         # self.combPoolingLayer1 = combineFeature.combineFeature(model['poolingLayer']['combPooling']['all'],
         #                                                        model['poolingLayer']['combPooling']['take'])
@@ -211,6 +218,12 @@ class myCombineCNN:
         trainCostList = []
         trainCostList.append(trainCost)
         trainTimeList = [0]
+
+        testresult = self.pureForwardPropagation(self.data.DataTestX)
+        testCost = costFunc.costCal(testresult, self.data.DataTestY)
+        testCostList = []
+        testCostList.append(testCost)
+
         ###################### start train in round
 
 
@@ -226,6 +239,11 @@ class myCombineCNN:
             # valCost = costFunc.costCal(self.predictResult, self.data.DataValY)
             # print(trainCost, valCost)
             print(trainCost)
+
+            testresult = self.pureForwardPropagation(self.data.DataTestX)
+            testCost = costFunc.costCal(testresult, self.data.DataTestY)
+            testCostList.append(testCost)
+            print testCost###
 
             # if trainCost > lastTrainCost:
             #     trainRate = trainRate / 2
@@ -262,8 +280,15 @@ class myCombineCNN:
         plt.xlim(0, trainRound + 2)
         plt.ylim(0, 1.6 * trainCostList[0])
         plt.plot(trainTimeList, trainCostList, 'b-')
+        plt.plot(trainTimeList, testCostList, 'g-')
         plt.show()
 
+    def pureForwardPropagation(self, inputDataX):
+        inputDataX = self.combConvLayer1.makeCombineData(inputDataX)
+        allConnectData = self.multiConvLayer.pureCalculate(inputDataX)
+        midACData = self.fullInputLayer.pureCalculate(allConnectData)
+        predictResult = self.fullMidLayer.pureCalculate(midACData)
+        return predictResult
 
     def forwardPropagation(self, inputDataX = None):
 
@@ -378,11 +403,13 @@ if __name__ == '__main__':
 
     wineDATA = myLoadData.loadData('wine.txt', 0.3, -1)
     # wineDATA = myLoadData.loadData('wine.txt')
+    wineDATA.MeanPreProcess()
     wineDATA.minmax_scale()
     mcnn = myCombineCNN(wineDATA, 6) #todo change architecture, every comb one feature extract
                                      #todo distinguish different sample's loss pattern, training with same loss pattern
     # mcnn.trainCNN(1600,0.2)
-    mcnn.trainCNN(16000,0.03)
+    mcnn.trainCNN(16000,0.1)
+    mcnn.saveModel('./model/16000multiWithMean.json')
 
 
 

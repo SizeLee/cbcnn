@@ -154,6 +154,23 @@ class MultiConv:
 
     #todo def BP function
 
+    def pureCalculate(self, inputDataX):
+        sample = inputDataX.shape[0]
+        combnum = inputDataX.shape[1]
+        wlength = inputDataX.shape[2]
+
+        datatemp = inputDataX.reshape(sample * combnum, wlength)
+        datatemp = np.hstack((np.ones((sample * combnum, 1)), datatemp))
+        wlength += 1
+        inputDataX = datatemp.reshape(sample, combnum, wlength)
+
+        outputDataX = np.sum(inputDataX * self.__w, axis=2)
+        # print(np.dot(self.__inputDataX, self.__w).shape)
+
+        outputDataAct = activationFunction.leakyReLU(outputDataX, self.__leakyRate)
+
+        return outputDataAct
+
     def BP(self, sensitivityFactor):
         delt = sensitivityFactor * activationFunction.leakyReLUGradient(self.__outputDataX, self.__leakyRate)
         delt = delt.reshape((delt.shape[0], delt.shape[1], 1))

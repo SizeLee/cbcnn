@@ -48,7 +48,18 @@ class fullConnectInputLayer:
         self.__outputDataX = np.dot(self.__inputDataX, self.__w)
         self.__outputDataAct = activationFunction.sigmoid(self.__outputDataX)
 
-        return self.__outputDataAct.copy()
+        return self.__outputDataAct
+
+    def pureCalculate(self, newInputDataX):
+
+        if newInputDataX is not None:
+            sampleNum = newInputDataX.shape[0]
+            inputDataX = np.hstack((np.ones((sampleNum, 1)), newInputDataX))    ##########iterate new data into mid layer
+
+        outputDataX = np.dot(inputDataX, self.__w)
+        outputDataAct = activationFunction.sigmoid(outputDataX)
+
+        return outputDataAct
 
     #todo def BP function
 
@@ -114,7 +125,18 @@ class fullConnectMidLayer:
         self.__outputY = np.dot(self.__midInputDataX, self.__w)
         self.__outputYAct = activationFunction.sigmoid(self.__outputY)
 
-        return self.__outputYAct.copy()
+        return self.__outputYAct
+
+    def pureCalculate(self, newInputDataX = None):
+
+        if newInputDataX is not None:
+            sampleNum = newInputDataX.shape[0]
+            midInputDataX = np.hstack((np.ones((sampleNum, 1)), newInputDataX))    ##########iterate new data into mid layer
+
+        outputY = np.dot(midInputDataX, self.__w)
+        outputYAct = activationFunction.sigmoid(outputY)
+
+        return outputYAct
 
     #todo def BP function
     def BP(self, ylabel = None):

@@ -39,17 +39,20 @@ class dataLossSimulator:
                   'only former part dim of data exist loss\n')
 
         lossDataX = []
+        lossLocationsss = []
         for sample in dataX:
             lossDataSample = sample
             lossLocation = random.sample(range(self.originDim), self.lossDimEachSample)
+            lossLocationsss.append(lossLocation)
             for loss in lossLocation:
                 lossDataSample[loss] = self.lossSetValue
 
             lossDataX.append(lossDataSample)
 
+
         # print(lossLocation)
         # print(lossDataX)
-        return np.array(lossDataX)
+        return np.array(lossDataX), lossLocationsss
 
 
 if __name__ == '__main__':
